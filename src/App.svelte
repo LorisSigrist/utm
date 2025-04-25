@@ -1,5 +1,9 @@
 <script lang="ts">
-  import { parseGödelNumberToTuringMachine } from "./lib/goedel";
+  import { onMount } from "svelte";
+  import {
+    parseGödelNumberString,
+    parseGödelNumberToTuringMachine,
+  } from "./lib/goedel";
   import GödelNumberInput from "./lib/GödelNumberInput.svelte";
   import TuringMachineDiagram from "./lib/TuringMachineDiagram.svelte";
   import type { TuringMachineDefinition } from "./lib/types";
@@ -7,11 +11,31 @@
 
   let description_number: bigint | null = $state(null);
 
+  onMount(() => {
+    // get the "goedel" parameter from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const goedel = urlParams.get("goedel");
+    if (!goedel) return;
+
+    const parseResult = parseGödelNumberString(goedel, 16);
+    if (parseResult.success) description_number = parseResult.result.goedel;
+  });
+
   let tm: TuringMachineDefinition | null = $derived(
     description_number == null
       ? null
       : parseGödelNumberToTuringMachine(description_number).result!
   );
+
+  $effect(() => {
+    if (tm) {
+      window.history.replaceState(
+        null,
+        "",
+        `?goedel=${tm.goedel.toString(16)}`
+      );
+    }
+  });
 
   let output = $state("");
   function runTM() {
@@ -31,8 +55,8 @@
 
 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
   <!-- We've used 3xl here, but feel free to try other max-widths based on your needs -->
-  <main class="mx-auto max-w-3xl">
-    <h1 class="text-2xl md:text-4xl font-bold mt-8 mb-6 md:mt-24 md:mb-10">
+  <main class="mx-auto max-w-3xl py-8 md:py-24 pb-6 md:pb-12">
+    <h1 class="text-2xl md:text-4xl font-bold mb-6 md:mb-10">
       Universal Turing Machine Simulator
     </h1>
 
@@ -50,12 +74,10 @@
     </section>
 
     {#if tm}
-      <section>
-        <TuringMachineDiagram />
-      </section>
+      <TuringMachineDiagram {tm} />
 
       <button onclick={runTM}>Run TM</button>
-      
+
       <pre>{output}</pre>
     {/if}
   </main>
