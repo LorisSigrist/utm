@@ -16,7 +16,7 @@
    */
   function validateBinaryGödelNumber(str: string): string | null {
     if (str.length == 0) return "Please enter a binary number";
-    if (!str.match(/^[01]+$/)) return "String should only contain 0s and 1s";
+    if (!str.match(/^[01]+$/)) return "Input should only contain 0s and 1s";
     return null;
   }
 
@@ -28,7 +28,7 @@
    */
   function validateDecimalString(str: string): string | null {
     if (str.length == 0) return "Please enter a decimal number";
-    if (!str.match(/^[0-9]+$/)) return "String should only contain numbers";
+    if (!str.match(/^[0-9]+$/)) return "Input should only contain digits 0-9";
     return null;
   }
 </script>
@@ -55,6 +55,13 @@
       : validateDecimalString(textValue)
   );
 
+  /**
+   * Updates the `value` prop if the textInput is a valid gödel number
+   *
+   * @param textInput
+   * @param inputMode
+   * @param error
+   */
   function maybeUpdateValue(
     textInput: string,
     inputMode: "binary" | "decimal",
@@ -69,7 +76,6 @@
 
   // update the text if the value changes for an external reason
   $effect(() => {
-    console.log("value changed", value);
     textValue = inputMode == "binary" ? value.toString(2) : value.toString(10);
   });
 
@@ -77,8 +83,6 @@
   $effect(() => {
     maybeUpdateValue(textValue, inputMode, error);
   });
-
-  
 </script>
 
 <div>
@@ -130,7 +134,12 @@
           rows="5"
           id="goedel-number"
           bind:value={textValue}
-          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+          class="block w-full rounded-md bg-white px-3 py-1.5
+          
+          {error !== null
+            ? 'text-red-900 outline-red-300 placeholder:text-red-300 focus:outline-red-600'
+            : 'text-gray-900 outline-gray-300 placeholder:text-gray-400 focus:outline-indigo-600'} 
+            text-base outline-1 -outline-offset-1 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6"
           placeholder={inputMode == "binary"
             ? "1001101001..."
             : "7349101928734..."}
@@ -141,5 +150,5 @@
 </div>
 
 {#if error}
-  <p>{error}</p>
+  <p class="mt-2 text-sm text-red-600">{error}</p>
 {/if}
