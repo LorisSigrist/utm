@@ -1,3 +1,4 @@
+import type { TuringMachineDefinition } from "./types";
 
 /**
  * A regex for the binary representation of a Gödel number, including the input
@@ -22,16 +23,6 @@ type Result<T> = {
     result?: undefined
 }
 
-type ParseResult = {
-    success: true,
-    error?: undefined
-    number: bigint
-} | {
-    success: false,
-    error: string
-    number?: undefined
-}
-
 /**
  * Parses an untrusted user-input to a UTM
  * 
@@ -50,52 +41,7 @@ export function parseGödelNumberString(input: string, base: 2 | 10 | 16): Resul
     return tmResult
 }
 
-export type TuringMachineDefinition = {
-    /** The goedel number this turing machine was derived from */
-    goedel: bigint,
 
-    /** 
-     * The states that the turing machine has. (at least 2)
-     */
-    states: number[],
-
-    /**
-     * The starting state. Usually 1
-     */
-    starting_state: number,
-
-    /**
-     * The accepting state. Usually 2
-     */
-    accepting_state: number,
-
-    /** 
-     * The string representation of the alphabet of the turing machine.
-     * 
-     * Usually starts with [1, 0, _]
-     */
-    alphabet: string[],
-
-
-    /**
-     * The index of the empty symbol in the alphabet. Usually 2
-     */
-    empty_symbol: number,
-
-    /**
-     * The transitions Table.
-     * 
-     * Format: [fromState, readSymbol, toState, writeSymbol, direction]
-     */
-    transitions: [number, number, number, number, "L" | "R"][]
-
-    /**
-     * The initial tape.
-     * 
-     * The symbols are represented as indexes into the alphabet
-     */
-    initial_tape: number[]
-}
 
 /**
  * Parses the gödel number into a turing machine representation.
@@ -118,7 +64,7 @@ function parseGödelNumberToTuringMachine(goedel: bigint): Result<TuringMachineD
         starting_state: 1,
         accepting_state: 2,
         alphabet: ['0', '1', '⌴'],
-        empty_symbol: 2,
+        empty_symbol: 3,
         transitions: [],
         initial_tape: []
     }
@@ -136,7 +82,7 @@ function parseGödelNumberToTuringMachine(goedel: bigint): Result<TuringMachineD
             return { success: false, error: "Turing Machine is non-deterministic" }
         }
 
-        const direction = directionNum === 0 ? "L" : "R";
+        const direction = directionNum === 1 ? "L" : "R";
         tm.transitions.push([fromState, readSymbol, toState, writeSymbol, direction]);
 
         states.add(fromState);
