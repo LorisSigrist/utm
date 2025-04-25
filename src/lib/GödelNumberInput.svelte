@@ -4,9 +4,28 @@
 -->
 <script lang="ts" module>
   export type GödelNumberInputProps = {
+    /**
+     * A valid gödel number, including the initial tape.
+     * null otherwise
+     */
     value: bigint | null;
+    /**
+     * If the input should be a binary or decimal number
+     */
     inputMode?: "binary" | "decimal";
   };
+
+  /**
+   * A regex for the binary representation of a Gödel number, including the input
+   */
+  const GODEL_NUMBER_REGEX = /^1(0+10+10+10+10+11)*(0+10+10+10+10+)111(0|1)*$/;
+
+  /**
+   * A regex for the binary representation of a Gödel number, excluding the input.
+   * Used to detect if the input is valid, but missing the input
+   */
+  const GODEL_NUMBER_REGEX_WITHOUT_INPUT =
+    /^1(0+10+10+10+10+11)*(0+10+10+10+10+)$/;
 
   /**
    * Validates that a string is a valid gödel number (binary)
@@ -17,6 +36,17 @@
   function validateBinaryGödelNumber(str: string): string | null {
     if (str.length == 0) return "Please enter a binary number";
     if (!str.match(/^[01]+$/)) return "Input should only contain 0s and 1s";
+
+    const valid_goedel_number = str.match(GODEL_NUMBER_REGEX);
+    const valid_goedel_number_without_input = str.match(
+      GODEL_NUMBER_REGEX_WITHOUT_INPUT
+    );
+
+    if (!valid_goedel_number && !valid_goedel_number_without_input)
+      return "Not a valid Gödel number";
+    if (!valid_goedel_number && valid_goedel_number_without_input)
+      return "Input is missing. Add it after the delimiter 111";
+
     return null;
   }
 
@@ -29,8 +59,21 @@
   function validateDecimalString(str: string): string | null {
     if (str.length == 0) return "Please enter a decimal number";
     if (!str.match(/^[0-9]+$/)) return "Input should only contain digits 0-9";
+
+    const binary = BigInt(str).toString(2);
+    const valid_goedel_number = binary.match(GODEL_NUMBER_REGEX);
+    const valid_goedel_number_without_input = binary.match(
+      GODEL_NUMBER_REGEX_WITHOUT_INPUT
+    );
+
+    if (!valid_goedel_number && !valid_goedel_number_without_input)
+      return "Not a valid Gödel number";
+    if (!valid_goedel_number && valid_goedel_number_without_input)
+      return "Valid gödel number, but the input is missing";
+
     return null;
   }
+
 </script>
 
 <script lang="ts">
@@ -135,7 +178,7 @@
           rows="5"
           id="goedel-number"
           bind:value={textValue}
-          oninput={() => (touched = true)}
+          onblur={() => (touched = true)}
           class="block w-full rounded-md bg-white px-3 py-1.5
           {showError
             ? 'text-red-900 outline-red-300 placeholder:text-red-300 focus:outline-red-600'
