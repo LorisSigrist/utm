@@ -4,7 +4,7 @@
 -->
 <script lang="ts" module>
   export type GödelNumberInputProps = {
-    value?: bigint;
+    value: bigint | null;
     inputMode?: "binary" | "decimal";
   };
 
@@ -35,7 +35,7 @@
 
 <script lang="ts">
   let {
-    value = $bindable(0n),
+    value = $bindable(null),
     inputMode = $bindable("binary"),
   }: GödelNumberInputProps = $props();
 
@@ -54,6 +54,9 @@
       ? validateBinaryGödelNumber(textValue)
       : validateDecimalString(textValue)
   );
+
+  let touched = $state(false);
+  let showError = $derived(error != null && touched);
 
   /**
    * Updates the `value` prop if the textInput is a valid gödel number
@@ -76,7 +79,10 @@
 
   // update the text if the value changes for an external reason
   $effect(() => {
-    textValue = inputMode == "binary" ? value.toString(2) : value.toString(10);
+    if (value == null) textValue = "";
+    else
+      textValue =
+        inputMode == "binary" ? value.toString(2) : value.toString(10);
   });
 
   // update the value if the text is changed
@@ -125,18 +131,13 @@
       tabindex="0"
     >
       <div>
-        <label
-          for="goedel-number"
-          class="block text-sm font-medium text-gray-700">Gödel Number</label
-        >
-
         <textarea
           rows="5"
           id="goedel-number"
           bind:value={textValue}
+          oninput={() => (touched = true)}
           class="block w-full rounded-md bg-white px-3 py-1.5
-          
-          {error !== null
+          {showError
             ? 'text-red-900 outline-red-300 placeholder:text-red-300 focus:outline-red-600'
             : 'text-gray-900 outline-gray-300 placeholder:text-gray-400 focus:outline-indigo-600'} 
             text-base outline-1 -outline-offset-1 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6"
@@ -149,6 +150,6 @@
   </div>
 </div>
 
-{#if error}
+{#if showError}
   <p class="mt-2 text-sm text-red-600">{error}</p>
 {/if}
