@@ -1,6 +1,6 @@
 import { describe, it, expect, assert } from "vitest";
 import { parseGödelNumberString } from "./goedel";
-import { executeTuringMachine, logTape, readSymbol } from "./utm";
+import { executeTuringMachine, stringifyTape, readSymbol } from "./utm";
 
 describe("execute turing machine", () => {
     it("executes a simple turing machine", () => {
@@ -14,7 +14,7 @@ describe("execute turing machine", () => {
         const TIMEOUT = 1000;
         for (let i = 0; i < TIMEOUT; i++) {
             const iteration = generator.next();
-            logTape(iteration.value);
+            console.log(stringifyTape(iteration.value));
             if (iteration.done) {
                 assert.isTrue(iteration.value.accepted);
                 assert.isTrue(iteration.value.finished);
@@ -52,7 +52,7 @@ describe("execute turing machine", () => {
         const TIMEOUT = 1000;
         for (let i = 0; i < TIMEOUT; i++) {
             const iteration = generator.next();
-             logTape(iteration.value);
+            console.log(stringifyTape(iteration.value));
             if (iteration.done) {
                 assert.isTrue(iteration.value.accepted);
                 assert.isTrue(iteration.value.finished);

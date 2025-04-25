@@ -49,7 +49,7 @@ export function parseGödelNumberString(input: string, base: 2 | 10 | 16): Resul
  * @param goedel A syntactically valid goedel number with initial tape
  * @returns A result with the turing machine or an error
  */
-function parseGödelNumberToTuringMachine(goedel: bigint): Result<TuringMachineDefinition> {
+export function parseGödelNumberToTuringMachine(goedel: bigint): Result<TuringMachineDefinition> {
     const binary = goedel.toString(2).slice(1); // remove leading 1
     const inputDelimiterPosition = binary.indexOf("111");
 

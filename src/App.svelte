@@ -1,9 +1,32 @@
 <script lang="ts">
+  import { parseGödelNumberToTuringMachine } from "./lib/goedel";
   import GödelNumberInput from "./lib/GödelNumberInput.svelte";
   import TuringMachineDiagram from "./lib/TuringMachineDiagram.svelte";
+  import type { TuringMachineDefinition } from "./lib/types";
+  import { executeTuringMachine, stringifyTape } from "./lib/utm";
 
   let description_number: bigint | null = $state(null);
-  $effect(() => console.log(description_number));
+
+  let tm: TuringMachineDefinition | null = $derived(
+    description_number == null
+      ? null
+      : parseGödelNumberToTuringMachine(description_number).result!
+  );
+
+  let output = $state("");
+  function runTM() {
+    if (!tm) return;
+
+    output = "";
+
+    const iterator = executeTuringMachine(tm);
+    requestAnimationFrame(function next() {
+      const iter = iterator.next();
+      output += stringifyTape(iter.value) + "\n";
+      if (iter.done) return;
+      requestAnimationFrame(next);
+    });
+  }
 </script>
 
 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -26,8 +49,14 @@
       <GödelNumberInput bind:value={description_number} />
     </section>
 
-    <section>
-      <TuringMachineDiagram />
-    </section>
+    {#if tm}
+      <section>
+        <TuringMachineDiagram />
+      </section>
+
+      <button onclick={runTM}>Run TM</button>
+      
+      <pre>{output}</pre>
+    {/if}
   </main>
 </div>

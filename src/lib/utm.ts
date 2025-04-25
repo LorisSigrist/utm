@@ -83,7 +83,7 @@ export function writeSymbol(config: TuringMachineConfiguration, symbol: number) 
  * Logs the tape to the console
  * @param configuration The current configuration
  */
-export function logTape(configuration: TuringMachineConfiguration) {
+export function stringifyTape(configuration: TuringMachineConfiguration) {
     let tape = "";
 
     for (let i = -15; i < 0; i++) {
@@ -102,5 +102,5 @@ export function logTape(configuration: TuringMachineConfiguration) {
 
     tape += ` (steps: ${configuration.steps})`;
 
-    console.log(tape);
+    return tape
 }
