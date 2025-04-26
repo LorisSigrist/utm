@@ -20,6 +20,7 @@
 
 <div class="relative inline-block text-left">
   <div>
+   
     <button
       type="button"
       class="flex items-center rounded-full text-gray-400 hover:text-gray-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100 focus:outline-hidden"
@@ -58,13 +59,17 @@
       use:clickoutside
       onclickoutside={() => (open = false)}
     >
-      <div class="py-1" role="none">
+      <div class="py-1 divide-y divide-gray-100" role="none">
+        <div class="px-4 py-3" role="none">
+          <p class="text-sm font-medium text-gray-900" role="none">Load Example</p>
+        </div>
+
         {#each Object.entries(Examples) as [name, godel]}
           <!-- Active: "bg-gray-100 text-gray-900 outline-hidden", Not Active: "text-gray-700" -->
 
           <a
             href="?goedel={godel.toString(16)}"
-            class="block px-4 py-2 text-sm text-gray-700"
+            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 outline-hidden"
             role="menuitem"
             tabindex="-1"
             id="menu-item-0">{name}</a

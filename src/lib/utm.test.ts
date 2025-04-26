@@ -1,38 +1,39 @@
 import { describe, it, expect, assert } from "vitest";
 import { parseGödelNumberString } from "./goedel";
-import { executeTuringMachine, stringifyTape, readSymbol } from "./utm";
+import { stringifyTape, readSymbolAtOffset, getInitialConfiguration, getNextConfiguration } from "./utm";
 
 describe("execute turing machine", () => {
-    it("executes a simple turing machine", () => {
+    it("executes a simple, accepting turing machine", () => {
         const result = parseGödelNumberString("10101000101001101001010010011000101000010100110001001010010011000010100001010011000010010000100100110000100010010001001111001", 2);
         expect(result.success).toBe(true);
 
 
         const tm = result.result!;
-        const generator = executeTuringMachine(tm);
+        let config = getInitialConfiguration(tm);
 
         const TIMEOUT = 1000;
         for (let i = 0; i < TIMEOUT; i++) {
-            const iteration = generator.next();
-            console.log(stringifyTape(iteration.value));
-            if (iteration.done) {
-                assert.isTrue(iteration.value.accepted);
-                assert.isTrue(iteration.value.finished);
+            console.log(stringifyTape(config));
+            if (config.finished) {
+                assert.isTrue(config.accepted);
+                assert.isTrue(config.finished);
 
-                expect(readSymbol(iteration.value, 0)).toBe(tm.empty_symbol);
-                expect(readSymbol(iteration.value, -1)).toBe(tm.empty_symbol);
-                expect(readSymbol(iteration.value, -2)).toBe(2); // "1"
-                expect(readSymbol(iteration.value, -3)).toBe(1); // "0"
-                expect(readSymbol(iteration.value, -4)).toBe(1); // "0"
-                expect(readSymbol(iteration.value, -5)).toBe(2); // "1"
+                expect(readSymbolAtOffset(config, 0)).toBe(tm.empty_symbol);
+                expect(readSymbolAtOffset(config, -1)).toBe(tm.empty_symbol);
+                expect(readSymbolAtOffset(config, -2)).toBe(2); // "1"
+                expect(readSymbolAtOffset(config, -3)).toBe(1); // "0"
+                expect(readSymbolAtOffset(config, -4)).toBe(1); // "0"
+                expect(readSymbolAtOffset(config, -5)).toBe(2); // "1"
 
-                expect(iteration.value.current_state).toBe(2);
+                expect(config.current_state).toBe(2);
 
                 return;
             }
 
-            assert.isFalse(iteration.value.finished);
-            assert.isFalse(iteration.value.accepted); // accepted should only be set if the machine has also finished
+            assert.isFalse(config.finished);
+            assert.isFalse(config.accepted); // accepted should only be set if the machine has also finished
+
+            config = getNextConfiguration(config);
         }
 
         assert.fail("Turing machine Timed Out after " + TIMEOUT + " steps");
@@ -47,27 +48,31 @@ describe("execute turing machine", () => {
 
 
         const tm = result.result!;
-        const generator = executeTuringMachine(tm);
+        let config = getInitialConfiguration(tm);
 
         const TIMEOUT = 1000;
         for (let i = 0; i < TIMEOUT; i++) {
-            const iteration = generator.next();
-            console.log(stringifyTape(iteration.value));
-            if (iteration.done) {
-                assert.isTrue(iteration.value.accepted);
-                assert.isTrue(iteration.value.finished);
+            console.log(stringifyTape(config));
+            if (config.finished) {
+                assert.isTrue(config.accepted);
+                assert.isTrue(config.finished);
 
                 // we expect to stop on an empty symbol, followed by 16 1s
-                assert.isTrue(readSymbol(iteration.value, 0) === tm.empty_symbol);
+                assert.isTrue(readSymbolAtOffset(config, 0) === tm.empty_symbol);
                 for (let i = 1; i <= 16; i++) {
-                    assert.isTrue(readSymbol(iteration.value, i) === 2);
+                    assert.isTrue(readSymbolAtOffset(config, i) === 2);
                 }
-                assert.isTrue(readSymbol(iteration.value, 17) === tm.empty_symbol);
+                assert.isTrue(readSymbolAtOffset(config, 17) === tm.empty_symbol);
                 
                 // it should take exactly 249 steps to calculate the square of 4.
-                assert.isTrue(iteration.value.steps == 249);
+                assert.equal(config.steps, 249);
                 return;
             }
+
+            assert.isFalse(config.finished);
+            assert.isFalse(config.accepted); // accepted should only be set if the machine has also finished
+
+            config = getNextConfiguration(config);
         }
 
 

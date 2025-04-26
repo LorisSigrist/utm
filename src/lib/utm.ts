@@ -1,5 +1,49 @@
 import type { Transition, TuringMachineConfiguration, TuringMachineDefinition } from "./types";
 
+export function getInitialConfiguration(tm: TuringMachineDefinition): TuringMachineConfiguration {
+    const config = {
+        tm,
+        tape_right: [...tm.initial_tape],
+        tape_left: [],
+        current_state: tm.starting_state,
+        current_position: 0,
+        steps: 0,
+        finished: false,
+        accepted: false
+    };
+
+    const nextTransition = getTransition(config);
+    if(!nextTransition) {
+        config.finished = true;
+        config.accepted = config.current_state == config.tm.accepting_state;
+       
+    }
+
+    return config;
+}
+
+/**
+ * Executes one step of the turing machine
+ * @param config 
+ */
+export function getNextConfiguration(config: TuringMachineConfiguration): TuringMachineConfiguration {
+    if(config.finished) throw new Error("Turing machine is already finished");
+    
+    const transition = getTransition(config)!
+    writeSymbol(config, transition[3]);
+    config.current_state = transition[2]; // update the current state
+    config.current_position += transition[4] == "L" ? -1 : 1; // update the current position
+    config.steps++;
+
+    const nextTransition = getTransition(config);
+    if(!nextTransition) {
+        config.finished = true;
+        config.accepted = config.current_state == config.tm.accepting_state;
+    }
+    
+    return config;
+}
+
 export function* executeTuringMachine(tm: TuringMachineDefinition): Generator<TuringMachineConfiguration, TuringMachineConfiguration> {
     const configuration = {
         tm,
@@ -35,7 +79,7 @@ export function* executeTuringMachine(tm: TuringMachineDefinition): Generator<Tu
  * @returns The transition to take, if available
  */
 export function getTransition(config: TuringMachineConfiguration): Transition | undefined {
-    const symbol = readSymbol(config);
+    const symbol = readSymbolAtOffset(config);
     const transition = config.tm.transitions.find(transition => {
         return transition[0] === config.current_state && transition[1] === symbol
     });
@@ -44,12 +88,13 @@ export function getTransition(config: TuringMachineConfiguration): Transition | 
 }
 
 /**
- * Returns the symbol at the current position
+ * Returns the symbol at the given relative offset from the current position
+ * 
  * @param config The current configuration
  * @param relativeOffset The offset from the current position. (default: 0)
  * @returns The symbol at the current position
  */
-export function readSymbol(config: TuringMachineConfiguration, relativeOffset: number = 0): number {
+export function readSymbolAtOffset(config: TuringMachineConfiguration, relativeOffset: number = 0): number {
     const pos = config.current_position + relativeOffset;
 
     if (pos >= 0) {
@@ -87,16 +132,16 @@ export function stringifyTape(configuration: TuringMachineConfiguration) {
     let tape = "";
 
     for (let i = -15; i < 0; i++) {
-        const symbolID = readSymbol(configuration, i);
-        const symbol = configuration.tm.alphabet[symbolID -1];
+        const symbolID = readSymbolAtOffset(configuration, i);
+        const symbol = configuration.tm.alphabet[symbolID - 1];
         tape += symbol;
     }
 
     tape += `[q${configuration.current_state}]`;
 
     for (let i = 0; i < 16; i++) {
-        const symbolID = readSymbol(configuration, i);
-        const symbol = configuration.tm.alphabet[symbolID -1];
+        const symbolID = readSymbolAtOffset(configuration, i);
+        const symbol = configuration.tm.alphabet[symbolID - 1];
         tape += symbol;
     }
 
