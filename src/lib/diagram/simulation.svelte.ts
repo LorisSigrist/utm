@@ -1,4 +1,5 @@
 import type { TuringMachineDefinition } from "../types";
+import { rotateVector } from "./vectors";
 
 const LINK_DESIRED_LENGTH = 30;
 const SELF_LINK_DESIRED_LENGTH = 50;
@@ -82,6 +83,9 @@ export class TransitionNode extends SimulationNode<{
             ...data,
             id: `${data.from.data.id}-${data.to.data.id}`
         });
+
+        this.x = (data.from.x + data.to.x) / 2;
+        this.y = (data.from.y + data.to.y) / 2;
     }
 }
 
@@ -99,6 +103,9 @@ export class SelfTransitionNode extends SimulationNode<{
             ...data,
             id: `${data.node.data.id}-${data.node.data.id}`
         })
+
+        this.x = data.node.x;
+        this.y = data.node.y + 100;
     }
 }
 
@@ -115,12 +122,18 @@ export function getSimulationConfigForTuringMachine(tm: TuringMachineDefinition)
     nodes: Node[],
     links: Link[]
 } {
-
     const state_nodes = tm.states.map(id => new StateNode({
         id,
         is_accepting: tm.accepting_state == id,
         is_starting: tm.starting_state == id
     }));
+
+    for (const state of state_nodes) {
+        const vec = { x: 0, y: 100 };
+        const rotated = rotateVector(vec, 2 * Math.PI / state_nodes.length);
+        state.x = state.x + rotated.x;
+        state.y = state.y + rotated.y;
+    }
 
     const transition_objects = tm.transitions.map((t) => ({
         from: "q" + t[0],

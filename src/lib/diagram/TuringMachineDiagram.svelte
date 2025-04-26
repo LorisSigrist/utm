@@ -29,8 +29,8 @@
 
   const { nodes, links } = getSimulationConfigForTuringMachine(tm);
   for (const node of nodes) {
-    node.x = width / 2;
-    node.y = height / 2;
+    node.x += width / 2;
+    node.y += height / 2;
   }
   type Node = (typeof nodes)[number];
   type Link = (typeof links)[number];
