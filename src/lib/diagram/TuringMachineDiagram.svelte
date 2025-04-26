@@ -112,7 +112,7 @@
   });
 </script>
 
-<div class="w-full h-140" bind:clientWidth={width} bind:clientHeight={height}>
+<div class="w-full h-full" bind:clientWidth={width} bind:clientHeight={height}>
   <svg {width} {height} viewBox="0 0 {width} {height}">
     <defs>
       <marker

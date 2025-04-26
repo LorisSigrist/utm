@@ -2,8 +2,11 @@
  * Represents the definition of a turing machine
  */
 export type TuringMachineDefinition = {
-    /** The goedel number this turing machine was derived from */
+    /** The goedel number this turing machine was derived from - Including the input */
     goedel: bigint,
+
+    /** The goedel number without the input     */
+    goedel_without_input: bigint
 
     /** 
      * The states that the turing machine has. (at least 2)

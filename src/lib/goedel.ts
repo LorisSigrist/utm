@@ -60,6 +60,7 @@ export function parseGödelNumberToTuringMachine(goedel: bigint): Result<TuringM
 
     const tm: TuringMachineDefinition = {
         goedel,
+        goedel_without_input: BigInt("0b" + tmDefinition),
         states: [],
         starting_state: 1,
         accepting_state: 2,

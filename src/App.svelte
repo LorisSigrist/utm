@@ -65,10 +65,10 @@
 </div>
 
 {#if configuration}
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    {#key configuration.tm.goedel}
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
+    {#key configuration.tm.goedel_without_input}
       <section
-        class="w-full mx-auto max-w-6xl"
+        class="w-full mx-auto max-w-6xl h-140"
         in:fly|global={{ duration: 1500, opacity: 0, y: 200, delay: 200 }}
       >
         <TuringMachineDiagram
