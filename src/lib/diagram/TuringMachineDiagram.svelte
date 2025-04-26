@@ -6,6 +6,12 @@
      * The turing machine definition to render
      */
     tm: TuringMachineDefinition;
+
+
+    /**
+     * The state to highlight
+     */
+    highlighted_state?: number;
   };
 </script>
 
@@ -22,7 +28,7 @@
   import Transition from "./Transition.svelte";
   import SelfTransition from "./SelfTransition.svelte";
 
-  let { tm }: TuringMachineDiagramProps = $props();
+  let { tm, highlighted_state }: TuringMachineDiagramProps = $props();
 
   let width = $state(800);
   let height = $state(800);
@@ -123,7 +129,7 @@
     </defs>
     {#each nodes as node}
       {#if node.data.type == "state"}
-        <State state={node as StateNode} />
+        <State highlighted={!!highlighted_state && node.data.id == "q"+highlighted_state} state={node as StateNode} />
       {/if}
 
       {#if node.data.type == "self-transition"}

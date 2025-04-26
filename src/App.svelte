@@ -9,7 +9,6 @@
   import type { TuringMachineDefinition } from "./lib/types";
   import { executeTuringMachine, stringifyTape } from "./lib/utm";
   import { fade, fly } from "svelte/transition";
-  import TransitionTable from "./lib/TransitionTable.svelte";
 
   let description_number: bigint | null = $state(null);
 
@@ -28,6 +27,10 @@
       ? null
       : parseGödelNumberToTuringMachine(description_number).result!
   );
+
+  let execution: undefined | ReturnType<typeof executeTuringMachine> =
+    $state(undefined);
+  let currentConfiguration: undefined | number = $state(undefined);
 
   $effect(() => {
     if (tm) {
@@ -55,8 +58,10 @@
   }
 </script>
 
-<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-16 pb-6 md:pb-12">
-  <main class="mx-auto max-w-3xl">
+<main
+  class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-16 pb-6 md:pb-12"
+>
+  <section class="mx-auto max-w-3xl">
     <h1 class="text-2xl md:text-4xl font-bold mb-6 md:mb-10">
       Universal Turing Machine Simulator
     </h1>
@@ -73,21 +78,29 @@
     <section class="mb-4">
       <GödelNumberInput bind:value={description_number} />
     </section>
-  </main>
+  </section>
 
   {#if tm}
-    <section class="flex w-full items-center mx-auto max-w-6xl">
-      <TransitionTable {tm} />
+    {#key tm}
+      <section
+        class="w-full mx-auto max-w-6xl"
+        in:fly|global={{ duration: 1500, opacity: 0, y: 200, delay: 200 }}
+      >
+        <TuringMachineDiagram {tm} highlighted_state={2} />
+      </section>
+    {/key}
 
-      <div class="flex-auto" in:fly={{ duration: 2000, opacity: 0, x: 200 }}>
-        {#key tm}
-          <TuringMachineDiagram {tm} />
-        {/key}
+    <section class="mx-auto max-w-3xl">
+      <div class="pb-5">
+        <h3 class="text-base font-semibold text-gray-900">Run</h3>
+        <p class="mt-2 max-w-4xl text-sm text-gray-500">
+          Or drop a file. The Input should be entered after <code>111</code>
+        </p>
       </div>
+
+      <button onclick={runTM}>Run TM</button>
+
+      <pre>{output}</pre>
     </section>
-
-    <button onclick={runTM}>Run TM</button>
-
-    <pre>{output}</pre>
   {/if}
-</div>
+</main>

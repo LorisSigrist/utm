@@ -42,7 +42,7 @@
     return result.success ? null : result.error;
   });
 
-  let touched = $state(false);
+  let touched = $state(value !== null);
   let showError = $derived(error != null && touched);
 
   /**
@@ -57,6 +57,7 @@
     inputMode: "binary" | "decimal",
     error: string | null
   ) {
+    if(textInput.length == 0) value = null;
     if (error == null) {
       const newValue =
         inputMode == "binary" ? BigInt("0b" + textInput) : BigInt(textInput);

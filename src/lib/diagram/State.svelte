@@ -2,7 +2,10 @@
   import type { Action } from "svelte/action";
   import type { StateNode } from "./simulation.svelte";
 
-  let { state : node }: { state: StateNode } = $props();
+  let {
+    state: node,
+    highlighted = false,
+  }: { state: StateNode; highlighted?: boolean } = $props();
 
   let is_starting = $derived(node.data.is_starting);
   let is_accepting = $derived(node.data.is_accepting);
@@ -12,6 +15,11 @@
 
   let id = $derived(node.data.id);
 
+  let fillColor = $derived.by(() => {
+    if (!highlighted) return "white";
+    if (is_accepting) return "lime";
+    return "yellow";
+  });
 </script>
 
 <g id="state-{id}">
@@ -27,7 +35,13 @@
     ></line>
   {/if}
 
-  <circle {cx} {cy} r="30" fill="white" stroke="black" stroke-width="2"
+  <circle
+    {cx}
+    {cy}
+    r="30"
+    fill={fillColor}
+    stroke="black"
+    stroke-width="2"
   ></circle>
 
   {#if is_accepting}

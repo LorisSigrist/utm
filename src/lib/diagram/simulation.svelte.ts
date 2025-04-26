@@ -3,8 +3,8 @@ import { rotateVector } from "./vectors";
 
 const LINK_DESIRED_LENGTH = 30;
 const SELF_LINK_DESIRED_LENGTH = 50;
-const NODE_FORCE_RADIUS = -600;
-const LABEL_FORCE_RADIUS = -600;
+const NODE_FORCE_RADIUS = -800;
+const LABEL_FORCE_RADIUS = -800;
 
 
 /**
