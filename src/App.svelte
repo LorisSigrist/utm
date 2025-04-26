@@ -34,7 +34,7 @@
 
   $effect(() => {
     if (tm) {
-      window.history.replaceState(
+      window.history.pushState(
         null,
         "",
         `?goedel=${tm.goedel.toString(16)}`
