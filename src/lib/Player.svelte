@@ -1,4 +1,5 @@
 <script lang="ts" module>
+  import { onMount } from "svelte";
   import Tape from "./Tape.svelte";
   import type { TuringMachineConfiguration } from "./types";
   import { getInitialConfiguration, getNextConfiguration } from "./utm";
@@ -20,36 +21,83 @@
     speed = $bindable(1),
   }: PlayerProps = $props();
 
+  let tape: Tape | undefined = $state(undefined);
+
   function takeStep() {
     if (!configuration || configuration.finished) return;
     configuration = getNextConfiguration(configuration);
+
+    if (tape) tape.scrollToPosition(configuration.current_position);
   }
 
   function runToCompletion() {
     if (!configuration || configuration.finished) return;
+    playing = false;
 
     const TIMEOUT = 500_000;
 
     for (let i = 0; i < TIMEOUT; i++) {
       configuration = getNextConfiguration(configuration);
-      if (configuration.finished) return;
+      if (configuration.finished) {
+        if (tape) tape.scrollToPosition(configuration.current_position);
+        return;
+      }
     }
 
     alert(`Machine timed out after ${TIMEOUT} steps`);
   }
 
   function reset() {
+    playing = false;
     configuration = getInitialConfiguration(configuration.tm);
+
+    if (tape) tape.scrollToPosition(configuration.current_position);
   }
+
+  let interval: number | null = null;
+
+  function play() {
+    playing = true;
+
+    interval = setInterval(takeStep, 1000 / speed);
+  }
+
+  function stop() {
+    playing = false;
+    if (interval) clearInterval(interval);
+  }
+
+  onMount(() => {
+    console.log(tape);
+    if (tape) tape.scrollToPosition(configuration.current_position);
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  });
 </script>
 
 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
   <section class="mx-auto max-w-3xl">
-    <div class="pb-5">
-      <h3 class="text-base font-semibold text-gray-900">Run</h3>
-      <p class="mt-2 max-w-4xl text-sm text-gray-500">
-        Or drop a file. The Input should be entered after <code>111</code>
-      </p>
+
+
+    <!-- Controls -->
+    <div class="w-full flex flex-row items-center justify-between">
+      <div class="flex-1/3">
+        <button>Take Step</button>
+      </div>
+
+      <!-- Center -->
+      <div class="flex-1/3 flex flex-row gap-4 justify-center">
+        <button>Reset</button>
+        <button>Play/Pause</button>
+        <button>Take Step</button>
+      </div>
+
+      <!-- Right -->
+      <div class="flex-1/3 flex flex-row justify-end">
+        <button>Run to Completion</button>
+      </div>
     </div>
 
     <button
@@ -77,6 +125,7 @@
       viewBox="0 0 24 24"
       fill="currentColor"
       class="size-12"
+      onclick={play}
     >
       <path
         fillRule="evenodd"
@@ -90,6 +139,7 @@
       viewBox="0 0 24 24"
       fill="currentColor"
       class="size-12"
+      onclick={stop}
     >
       <path
         fillRule="evenodd"
@@ -100,4 +150,4 @@
   </section>
 </div>
 
-<Tape {configuration} />
+<Tape bind:this={tape} {configuration} />

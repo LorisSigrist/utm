@@ -13,10 +13,10 @@ export function getInitialConfiguration(tm: TuringMachineDefinition): TuringMach
     };
 
     const nextTransition = getTransition(config);
-    if(!nextTransition) {
+    if (!nextTransition) {
         config.finished = true;
         config.accepted = config.current_state == config.tm.accepting_state;
-       
+
     }
 
     return config;
@@ -27,8 +27,8 @@ export function getInitialConfiguration(tm: TuringMachineDefinition): TuringMach
  * @param config 
  */
 export function getNextConfiguration(config: TuringMachineConfiguration): TuringMachineConfiguration {
-    if(config.finished) throw new Error("Turing machine is already finished");
-    
+    if (config.finished) throw new Error("Turing machine is already finished");
+
     const transition = getTransition(config)!
     writeSymbol(config, transition[3]);
     config.current_state = transition[2]; // update the current state
@@ -36,11 +36,11 @@ export function getNextConfiguration(config: TuringMachineConfiguration): Turing
     config.steps++;
 
     const nextTransition = getTransition(config);
-    if(!nextTransition) {
+    if (!nextTransition) {
         config.finished = true;
         config.accepted = config.current_state == config.tm.accepting_state;
     }
-    
+
     return config;
 }
 
@@ -96,7 +96,15 @@ export function getTransition(config: TuringMachineConfiguration): Transition | 
  */
 export function readSymbolAtOffset(config: TuringMachineConfiguration, relativeOffset: number = 0): number {
     const pos = config.current_position + relativeOffset;
+    return readSymbol(config, pos);
+}
 
+/**
+ * Returns the SymbolID at the given absolute position
+ * @param config 
+ * @param position 
+ */
+export function readSymbol(config: TuringMachineConfiguration, pos: number): number {
     if (pos >= 0) {
         // use right-tape:
         return config.tape_right[pos] ?? config.tm.empty_symbol;
