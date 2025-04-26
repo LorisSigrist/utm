@@ -11,6 +11,7 @@ import type { SelfTransitionNode } from "./simulation.svelte";
     difference,
     type Vector2D,
     scale,
+    vectorLength
   } from "./vectors";
 
   let { transition }: { transition: SelfTransitionNode } = $props();
@@ -25,17 +26,19 @@ import type { SelfTransitionNode } from "./simulation.svelte";
   let nodeToLabel = $derived(difference(labelPosition, nodePosition));
   let normalisedNodeToLabel = $derived(normalizeVector(nodeToLabel));
 
+  let handleLength = $derived(vectorLength(nodeToLabel));
+
   // Rotate 30° left
   let outDirection = $derived(rotateVector(normalisedNodeToLabel, -Math.PI / 6));
 
   let outStart = $derived(addVectors(nodePosition, scale(outDirection, 30)));
-  let outHandle = $derived(addVectors(nodePosition, scale(outDirection, 90)));
+  let outHandle = $derived(addVectors(nodePosition, scale(outDirection, handleLength)));
 
   // Rotate 30° right
   let inDirection = $derived(rotateVector(normalisedNodeToLabel, Math.PI / 6));
 
   let inEnd = $derived(addVectors(nodePosition, scale(inDirection, 30)));
-  let inHandle = $derived(addVectors(nodePosition, scale(inDirection, 90)));
+  let inHandle = $derived(addVectors(nodePosition, scale(inDirection, handleLength)));
 </script>
 
 <g id="self-transition-{transition.data.id}">

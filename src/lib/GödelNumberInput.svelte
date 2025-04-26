@@ -18,6 +18,7 @@
 
 <script lang="ts">
   import { parseGödelNumberString } from "./goedel";
+  import LoadExampleDropdown from "./LoadExampleDropdown.svelte";
 
   let {
     value = $bindable(null),
@@ -57,7 +58,7 @@
     inputMode: "binary" | "decimal",
     error: string | null
   ) {
-    if(textInput.length == 0) value = null;
+    if (textInput.length == 0) value = null;
     if (error == null) {
       const newValue =
         inputMode == "binary" ? BigInt("0b" + textInput) : BigInt(textInput);
@@ -109,7 +110,12 @@
       onclick={() => (inputMode = "decimal")}
       type="button">Decimal</button
     >
+
+    <div class="ml-auto items-center space-x-5 flex gap-4">
+      <LoadExampleDropdown />
+    </div>
   </div>
+
   <div class="mt-2">
     <div
       id="tabs-1-panel-1"

@@ -11,7 +11,7 @@ export function rotateVector(vec: Vector2D, angle: number): Vector2D {
 }
 
 export function normalizeVector(vec: Vector2D): Vector2D {
-    const length = Math.sqrt(vec.x * vec.x + vec.y * vec.y);
+    const length = vectorLength(vec);
     return { x: vec.x / length, y: vec.y / length };
 }
 
@@ -25,4 +25,8 @@ export function scale(vec: Vector2D, factor: number): Vector2D {
 
 export function difference(a: Vector2D, b: Vector2D): Vector2D {
     return { x: a.x - b.x, y: a.y - b.y };
+}
+
+export function vectorLength(vec: Vector2D): number {
+    return Math.sqrt(vec.x * vec.x + vec.y * vec.y);
 }
