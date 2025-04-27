@@ -144,18 +144,8 @@
     <div class="w-full flex flex-row items-center justify-between">
       <div class="flex-1/3 flex flex-row justify-start">
         <span class="text-gray-700 gap-4 items-center w-20">
-          Step: {configuration.steps}
+          Step {configuration.steps}
         </span>
-
-        <input
-          type="range"
-          class="bg-gray-200 rounded-lg cursor-pointer dark:bg-gray-700"
-          bind:value={speed}
-          oninput={onSpeedChange}
-          min="0.1"
-          max="30"
-          step="0.1"
-        />
       </div>
 
       <!-- Center -->
