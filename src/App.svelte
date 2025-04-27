@@ -46,11 +46,8 @@
   });
 
   function handleTextFile(file: File) {
-    console.log("handleTextFile", file);
     const reader = new FileReader();
     reader.onload = () => {
-      console.log("reader.onload");
-
       const textContent = reader.result;
       if (typeof textContent !== "string") {
         alert("Could not read text file");

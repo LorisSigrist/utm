@@ -133,7 +133,7 @@ export function writeSymbol(config: TuringMachineConfiguration, symbol: number) 
     }
 }
 /**
- * Logs the tape to the console
+ * Returns the current configuration as a string
  * @param configuration The current configuration
  */
 export function stringifyTape(configuration: TuringMachineConfiguration) {
@@ -154,6 +154,10 @@ export function stringifyTape(configuration: TuringMachineConfiguration) {
     }
 
     tape += ` (steps: ${configuration.steps})`;
+
+    if (configuration.finished) {
+        tape += configuration.accepted ? " (accepted)" : " (rejected)";
+    }
 
     return tape
 }

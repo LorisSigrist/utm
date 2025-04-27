@@ -80,7 +80,6 @@
   });
 
   function onPaste(event: ClipboardEvent) {
-    console.log("onPaste", event);
     const input = event.target;
     if (!(input instanceof HTMLTextAreaElement)) return;
 
@@ -91,8 +90,6 @@
     const end = input.selectionEnd ?? textValue.length;
 
     const newValue = textValue.slice(0, start) + pasted + textValue.slice(end);
-    console.log("newValue", newValue);
-
     const massagedText = massageBinaryInput(newValue);
     textValue = massagedText;
     event.preventDefault();

@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import Tape from "./Tape.svelte";
   import type { TuringMachineConfiguration } from "./types";
-  import { getInitialConfiguration, getNextConfiguration } from "./utm";
+  import { getInitialConfiguration, getNextConfiguration, stringifyTape } from "./utm";
 
   import PlayIcon from "~icons/heroicons/play-16-solid";
   import PauseIcon from "~icons/heroicons/pause-16-solid";
@@ -26,7 +26,7 @@
   function takeStep() {
     if (!configuration || configuration.finished) return;
     configuration = getNextConfiguration(configuration);
-
+    console.log(stringifyTape(configuration));
     if (tape) tape.scrollToPosition(configuration.current_position);
 
     if (configuration.finished) stop();
@@ -44,6 +44,7 @@
 
     for (let i = 0; i < TIMEOUT; i++) {
       cfg = getNextConfiguration(cfg);
+      console.log(stringifyTape(cfg));
       if (cfg.finished) {
         configuration = cfg;
         if (tape) tape.scrollToPosition(cfg.current_position);
@@ -65,6 +66,7 @@
     playing = false;
     if (interval) clearInterval(interval);
     configuration = getInitialConfiguration(configuration.tm);
+    console.log(stringifyTape(configuration));
     if (tape) tape.scrollToPosition(configuration.current_position);
   }
 
@@ -89,8 +91,7 @@
   }
 
   onMount(() => {
-    if (tape) tape.scrollToPosition(configuration.current_position);
-
+    reset();
     return () => {
       if (interval) clearInterval(interval);
     };
@@ -104,8 +105,12 @@
   }
 
   function handleKeydown(e: KeyboardEvent) {
-    // only handle events if nothing is focused
-    if (document.activeElement && document.activeElement !== document.body)
+    // only handle events if nothing is focused (or a button is focussed)
+    if (
+      document.activeElement &&
+      document.activeElement !== document.body &&
+      !(document.activeElement instanceof HTMLButtonElement)
+    )
       return;
 
     // on right-arrow: take step
@@ -118,6 +123,7 @@
 
     // on space & no input is focused -> play/pause
     if (e.key === " ") {
+      if(document.activeElement instanceof HTMLButtonElement) return; // avoid conflicts
       playing ? stop() : play();
       e.preventDefault();
     }
