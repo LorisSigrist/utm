@@ -5,7 +5,7 @@
     <div class="flex justify-center gap-x-6 md:order-2">
       <a
         class="flex justify-center gap-x-2 md:order-2 text-gray-600 hover:text-gray-800"
-        href="https://github.com/LorisSigrist"
+        href="https://github.com/LorisSigrist/utm"
       >
         <span>View Source</span>
         <svg
