@@ -7,7 +7,7 @@
   } from "./lib/goedel";
   import GödelNumberInput from "./lib/GödelNumberInput.svelte";
   import TuringMachineDiagram from "./lib/diagram/TuringMachineDiagram.svelte";
-  import type { TuringMachineDefinition } from "./lib/types";
+  import type { TuringMachineConfiguration, TuringMachineDefinition } from "./lib/types";
   import { getInitialConfiguration } from "./lib/utm";
   import { fly } from "svelte/transition";
   import Footer from "./lib/Footer.svelte";
@@ -35,7 +35,11 @@
       : parseGödelNumberToTuringMachine(description_number).result!
   );
 
-  let configuration = $derived(tm == null ? null : getInitialConfiguration(tm));
+  let configuration : TuringMachineConfiguration | null = $state(null);
+
+  $effect(()=>{
+    configuration = tm == null ? null : getInitialConfiguration(tm)
+  })
 
   $effect(() => {
     if (tm) {
