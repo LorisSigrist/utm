@@ -55,7 +55,7 @@
   {@const symbol = configuration.tm.alphabet[symbolID - 1]}
   {@const isCurrent = tapePosition === configuration.current_position}
   <div
-    class="relative w-full h-full font-mono {!isCurrent
+    class="relative w-full h-full font-mono cursor-pointer {!isCurrent
       ? 'text-black'
       : configuration.finished
         ? configuration.accepted
@@ -63,11 +63,12 @@
           : 'text-white bg-red-600'
         : 'text-black'}
       }"
+    title="{tapePosition.toString(10)}"
   >
     {#if isCurrent && !configuration.finished}
       <div
-        in:receive={{ duration: 300 / speed, key: "current", delay: 0 / speed  }}
-        out:send={{ duration: 300 / speed, key: "current", delay: 0 / speed  }}
+        in:receive={{ duration: 300 / speed, key: "current", delay: 0 / speed }}
+        out:send={{ duration: 300 / speed, key: "current", delay: 0 / speed }}
         class="absolute inset-0 bg-yellow-300"
       ></div>
     {/if}
@@ -75,7 +76,7 @@
     {#key symbol}
       <div
         class="absolute inset-0 grid place-items-center"
-        in:fly={{ duration: 100, y: -ITEM_SIZE, opacity: 0,  }}
+        in:fly={{ duration: 100, y: -ITEM_SIZE, opacity: 0 }}
         out:fly={{ duration: 100, y: ITEM_SIZE, opacity: 0 }}
       >
         <span>{symbol}</span>

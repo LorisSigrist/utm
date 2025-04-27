@@ -1,6 +1,6 @@
 <footer class="bg-white mt-auto">
   <div
-    class="mx-auto max-w-3xl px-6 py-12 md:flex md:items-center md:justify-between lg:px-8"
+    class="mx-auto max-w-3xl  py-12 md:flex md:items-center md:justify-between"
   >
     <div class="flex justify-center gap-x-6 md:order-2">
       <a

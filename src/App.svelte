@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import {
+  massageBinaryInput,
     parseGödelNumberString,
     parseGödelNumberToTuringMachine,
   } from "./lib/goedel";
@@ -11,6 +12,7 @@
   import { fly } from "svelte/transition";
   import Footer from "./lib/Footer.svelte";
   import Player from "./lib/Player.svelte";
+  import Dropzone from "./lib/Dropzone.svelte";
 
   let description_number: bigint | null = $state(null);
 
@@ -33,14 +35,39 @@
   let configuration = $derived(tm == null ? null : getInitialConfiguration(tm));
 
   $effect(() => {
+    
     if (tm) {
-      window.history.pushState(
-        null,
-        "",
-        `?goedel=${tm.goedel.toString(16)}`
-      );
+      window.history.pushState(null, "", `?goedel=${tm.goedel.toString(16)}`);
+    } else {
+      window.history.pushState(null, "", "");
     }
   });
+
+  function handleTextFile(file: File) {
+    console.log("handleTextFile", file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      console.log("reader.onload");
+
+      const textContent = reader.result;
+      if (typeof textContent !== "string") {
+        alert("Could not read text file");
+        return;
+      }
+
+      // Massage the input so it's more likely to be accepted
+      const content = massageBinaryInput(textContent);
+      const result = parseGödelNumberString(content, 2);
+
+      if (result.success) {
+        description_number = result.result.goedel;
+      } else {
+        alert(result.error);
+      }
+    };
+
+    reader.readAsText(file);
+  }
 </script>
 
 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-16 pb-6 md:pb-12">
@@ -85,3 +112,13 @@
 
   <Footer />
 {/if}
+
+<Dropzone
+  allow={["text/plain", "application/json"]}
+  onFileDrop={(file) => {
+    if (file.type === "text/plain") handleTextFile(file);
+    else {
+      alert("JSON: TODO");
+    }
+  }}
+/>

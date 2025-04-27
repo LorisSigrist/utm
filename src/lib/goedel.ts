@@ -151,6 +151,7 @@ function parseToBigint(input: string, base: 2 | 10 | 16): Result<bigint> {
 
     switch (base) {
         case 2: {
+            if(!input.startsWith("1")) return { success: false, error: "Input should include a leading 1" }
             if (!input.match(/^[01]+$/)) return { success: false, error: "Input should only contain 0s and 1s" }
             return { success: true, result: BigInt("0b" + input) }
         }
@@ -163,4 +164,18 @@ function parseToBigint(input: string, base: 2 | 10 | 16): Result<bigint> {
             if (!input.match(/^[0-9a-f]+$/)) return { success: false, error: "Input should only contain digits 0-9 and letters a-f" }
             return { success: true, result: BigInt("0x" + input) }
     }
+}
+
+/**
+ * Attempts to massage the given input string so that it's more likely to be accepted
+ * - Trims off whitespace
+ * - Adds leading "1" if there isn't one
+ * - Adds trailing "111" if there isn't one
+ * @param input 
+ */
+export function massageBinaryInput(input: string): string { 
+    input = input.trim();
+    if (!input.startsWith("1")) input = "1" + input;
+    if (!input.endsWith("111")) input = input + "111";
+    return input
 }

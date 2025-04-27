@@ -34,23 +34,34 @@
 
   function runToCompletion() {
     if (!configuration || configuration.finished) return;
-    playing = false;
+    stop(); // stop animation
 
-    const TIMEOUT = 500_000;
+    const TIMEOUT = 5_000_000;
+
+    let cfg = structuredClone($state.snapshot(configuration)) as any as TuringMachineConfiguration;
 
     for (let i = 0; i < TIMEOUT; i++) {
-      configuration = getNextConfiguration(configuration);
-      if (configuration.finished) {
-        if (tape) tape.scrollToPosition(configuration.current_position);
+      cfg = getNextConfiguration(cfg);
+      if (cfg.finished) {
+        configuration = cfg;
+        if (tape) tape.scrollToPosition(cfg.current_position);
         return;
       }
     }
 
-    alert(`Machine timed out after ${TIMEOUT} steps`);
+    configuration = cfg;
+
+    const formattedTimout = new Intl.NumberFormat("en-US", {
+      notation: "standard",
+    }).format(TIMEOUT);
+
+    alert(`Paused Execution after ${formattedTimout} steps`);
+    if (tape) tape.scrollToPosition(configuration.current_position);
   }
 
   function reset() {
     playing = false;
+    if(interval) clearInterval(interval);
     configuration = getInitialConfiguration(configuration.tm);
     if (tape) tape.scrollToPosition(configuration.current_position);
   }

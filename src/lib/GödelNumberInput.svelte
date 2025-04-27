@@ -17,7 +17,7 @@
 </script>
 
 <script lang="ts">
-  import { parseGödelNumberString } from "./goedel";
+  import { massageBinaryInput, parseGödelNumberString } from "./goedel";
   import LoadExampleDropdown from "./LoadExampleDropdown.svelte";
 
   let {
@@ -78,6 +78,25 @@
   $effect(() => {
     maybeUpdateValue(textValue, inputMode, error);
   });
+
+  function onPaste(event: ClipboardEvent) {
+    console.log("onPaste", event);
+    const input = event.target;
+    if (!(input instanceof HTMLTextAreaElement)) return;
+
+    const pasted = event.clipboardData?.getData("text") ?? "";
+    if (inputMode != "binary") return;
+
+    const start = input.selectionStart ?? 0;
+    const end = input.selectionEnd ?? textValue.length;
+
+    const newValue = textValue.slice(0, start) + pasted + textValue.slice(end);
+    console.log("newValue", newValue);
+
+    const massagedText = massageBinaryInput(newValue);
+    textValue = massagedText;
+    event.preventDefault();
+  }
 </script>
 
 <div>
@@ -129,6 +148,7 @@
           rows="5"
           id="goedel-number"
           bind:value={textValue}
+          onpaste={onPaste}
           onblur={() => (touched = true)}
           class="block w-full rounded-md bg-white px-3 py-1.5
           {showError
