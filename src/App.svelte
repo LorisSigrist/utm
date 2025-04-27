@@ -7,9 +7,12 @@
   } from "./lib/goedel";
   import GödelNumberInput from "./lib/GödelNumberInput.svelte";
   import TuringMachineDiagram from "./lib/diagram/TuringMachineDiagram.svelte";
-  import type { TuringMachineConfiguration, TuringMachineDefinition } from "./lib/types";
+  import type {
+    TuringMachineConfiguration,
+    TuringMachineDefinition,
+  } from "./lib/types";
   import { getInitialConfiguration } from "./lib/utm";
-  import { fly } from "svelte/transition";
+  import { fade, fly } from "svelte/transition";
   import Footer from "./lib/Footer.svelte";
   import Player from "./lib/Player.svelte";
   import Dropzone from "./lib/Dropzone.svelte";
@@ -35,11 +38,11 @@
       : parseGödelNumberToTuringMachine(description_number).result!
   );
 
-  let configuration : TuringMachineConfiguration | null = $state(null);
+  let configuration: TuringMachineConfiguration | null = $state(null);
 
-  $effect(()=>{
-    configuration = tm == null ? null : getInitialConfiguration(tm)
-  })
+  $effect(() => {
+    configuration = tm == null ? null : getInitialConfiguration(tm);
+  });
 
   $effect(() => {
     if (tm) {
@@ -94,10 +97,12 @@
       }
 
       const isFlaci = Flaci.isValidFlaciTM(object);
-      if(!isFlaci) {
-        alert("JSON file does not contain a valid Flaci Turing Machine definition");
+      if (!isFlaci) {
+        alert(
+          "JSON file does not contain a valid Flaci Turing Machine definition"
+        );
         return;
-      } else{
+      } else {
         description_number = Flaci.generateGodelNumber(object as any);
       }
     };
@@ -116,14 +121,13 @@
       <h3 class="text-base font-semibold text-gray-900">
         Enter a Description Number
 
-        <a 
-          href="https://en.wikipedia.org/wiki/Description_number" 
+        <a
+          href="https://en.wikipedia.org/wiki/Description_number"
           class="text-sm text-indigo-600"
           title="Learn more about description numbers"
         >
           <QuestionMarkCircle class="inline" />
         </a>
-
       </h3>
       <p class="mt-2 max-w-4xl text-sm text-gray-500">
         Or drop a file. The Input should be entered after <code>111</code>
@@ -153,9 +157,11 @@
     {/key}
   </div>
 
-  <Player bind:configuration />
+  <div in:fade={{ duration: 500, delay: 500 }}>
+    <Player bind:configuration />
 
-  <Footer />
+    <Footer />
+  </div>
 {/if}
 
 <Dropzone
