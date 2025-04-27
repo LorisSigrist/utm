@@ -109,6 +109,9 @@
           d.data.type === "state" && d.data.is_accepting ? 0.1 : 0
         )
     );
+
+
+    simulation.alpha(0.5);
   });
 </script>
 
