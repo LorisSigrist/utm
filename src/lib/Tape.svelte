@@ -40,7 +40,7 @@
     scrollDirection="horizontal"
     scrollOffset={offset_px}
     scrollToBehaviour="smooth"
-    itemCount={1000000}
+    itemCount={1_000_000}
     itemSize={ITEM_SIZE}
   >
     <div slot="item" let:index let:style {style}>

@@ -38,7 +38,9 @@
 
     const TIMEOUT = 5_000_000;
 
-    let cfg = structuredClone($state.snapshot(configuration)) as any as TuringMachineConfiguration;
+    let cfg = structuredClone(
+      $state.snapshot(configuration)
+    ) as any as TuringMachineConfiguration;
 
     for (let i = 0; i < TIMEOUT; i++) {
       cfg = getNextConfiguration(cfg);
@@ -61,7 +63,7 @@
 
   function reset() {
     playing = false;
-    if(interval) clearInterval(interval);
+    if (interval) clearInterval(interval);
     configuration = getInitialConfiguration(configuration.tm);
     if (tape) tape.scrollToPosition(configuration.current_position);
   }
@@ -69,7 +71,6 @@
   let interval: number | null = null;
 
   function play() {
-
     playing = true;
     if (interval) clearInterval(interval);
 
@@ -95,14 +96,41 @@
     };
   });
 
-
   function onSpeedChange() {
-    if(!playing) return;
+    if (!playing) return;
 
-    if(interval) clearInterval(interval);
+    if (interval) clearInterval(interval);
     interval = setInterval(takeStep, 1000 / speed);
   }
+
+  function handleKeydown(e: KeyboardEvent) {
+    // only handle events if nothing is focused
+    if (document.activeElement && document.activeElement !== document.body)
+      return;
+
+    // on right-arrow: take step
+    // or run to completion if ctrl/cmd is pressed
+    if (e.key === "ArrowRight") {
+      if (e.ctrlKey || e.metaKey) runToCompletion();
+      else takeStep();
+      e.preventDefault();
+    }
+
+    // on space & no input is focused -> play/pause
+    if (e.key === " ") {
+      playing ? stop() : play();
+      e.preventDefault();
+    }
+
+    // on cmd/ctrl + LeftArrow -> reset
+    if (e.key === "ArrowLeft" && (e.ctrlKey || e.metaKey)) {
+      reset();
+      e.preventDefault();
+    }
+  }
 </script>
+
+<svelte:window on:keydown={handleKeydown} />
 
 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-6">
   <section class="mx-auto max-w-3xl">
@@ -115,7 +143,7 @@
 
         <input
           type="range"
-          class="bg-gray-200 rounded-lg  cursor-pointer dark:bg-gray-700"
+          class="bg-gray-200 rounded-lg cursor-pointer dark:bg-gray-700"
           bind:value={speed}
           oninput={onSpeedChange}
           min="0.1"
@@ -126,10 +154,19 @@
 
       <!-- Center -->
       <div class="flex-1/3 flex flex-row gap-6 justify-center">
-        <button onclick={reset}>
-          <ResetIcon class="size-6 text-gray-700" />
+        <button
+          onclick={reset}
+          title="Reset"
+          class="text-gray-700 disabled:text-gray-300 disabled:cursor-not-allowed"
+          disabled={configuration.steps === 0}
+        >
+          <ResetIcon class="size-6" />
         </button>
-        <button onclick={playing ? stop : play} class="size-12 relative">
+        <button
+          onclick={playing ? stop : play}
+          title={playing ? "Pause" : "Play"}
+          class="size-12 relative"
+        >
           {#if playing}
             <div
               class="absolute inset-0"
@@ -146,8 +183,13 @@
             </div>
           {/if}
         </button>
-        <button onclick={takeStep}>
-          <ArrowRight class="size-6 text-gray-700" />
+        <button
+          class="text-gray-700 disabled:text-gray-300 disabled:cursor-not-allowed"
+          onclick={takeStep}
+          disabled={configuration.finished}
+          title="Take a single step"
+        >
+          <ArrowRight class="size-6" />
         </button>
       </div>
 
@@ -155,8 +197,12 @@
       <div class="flex-1/3 flex flex-row justify-end">
         <button
           type="button"
-          class="rounded-md hover:bg-gray-100 px-2.5 py-1.5 text-sm font-semibold text-gray-600 flex flex-row gap-2 items-center"
+          class="
+          rounded-md
+          hover:bg-gray-100
+          px-2.5 py-1.5 text-sm font-semibold text-gray-600 disabled:text-gray-300 disabled:hover:bg-transparent disabled:cursor-not-allowed flex flex-row gap-2 items-center"
           onclick={runToCompletion}
+          disabled={configuration.finished}
         >
           <span>Run to Completion</span>
           <ArrowRightCircle class="inline size-6" />

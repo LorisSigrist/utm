@@ -175,6 +175,8 @@ function parseToBigint(input: string, base: 2 | 10 | 16): Result<bigint> {
  */
 export function massageBinaryInput(input: string): string { 
     input = input.trim();
+    if (!input.match(/^[01]+$/)) return input; // only massage if the input is a binary string
+
     if (!input.startsWith("1")) input = "1" + input;
     if (!input.endsWith("111")) input = input + "111";
     return input

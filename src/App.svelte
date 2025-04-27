@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import {
-  massageBinaryInput,
+    massageBinaryInput,
     parseGödelNumberString,
     parseGödelNumberToTuringMachine,
   } from "./lib/goedel";
@@ -13,6 +13,9 @@
   import Footer from "./lib/Footer.svelte";
   import Player from "./lib/Player.svelte";
   import Dropzone from "./lib/Dropzone.svelte";
+  import * as Flaci from "./lib/flaci";
+
+  import QuestionMarkCircle from "~icons/heroicons/question-mark-circle";
 
   let description_number: bigint | null = $state(null);
 
@@ -35,7 +38,6 @@
   let configuration = $derived(tm == null ? null : getInitialConfiguration(tm));
 
   $effect(() => {
-    
     if (tm) {
       window.history.pushState(null, "", `?goedel=${tm.goedel.toString(16)}`);
     } else {
@@ -68,6 +70,37 @@
 
     reader.readAsText(file);
   }
+
+  function handleJSONFile(file: File) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const textContent = reader.result;
+      if (typeof textContent !== "string") {
+        alert("Could not read JSON file");
+        return;
+      }
+
+      let object: unknown;
+
+      try {
+        object = JSON.parse(textContent);
+      } catch (e) {
+        console.error(e);
+        alert("Could not parse JSON file");
+        return;
+      }
+
+      const isFlaci = Flaci.isValidFlaciTM(object);
+      if(!isFlaci) {
+        alert("JSON file does not contain a valid Flaci Turing Machine definition");
+        return;
+      } else{
+        description_number = Flaci.generateGodelNumber(object as any);
+      }
+    };
+
+    reader.readAsText(file);
+  }
 </script>
 
 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-16 pb-6 md:pb-12">
@@ -78,7 +111,16 @@
 
     <div class="pb-5">
       <h3 class="text-base font-semibold text-gray-900">
-        Enter a Gödel Number
+        Enter a Description Number
+
+        <a 
+          href="https://en.wikipedia.org/wiki/Description_number" 
+          class="text-sm text-indigo-600"
+          title="Learn more about description numbers"
+        >
+          <QuestionMarkCircle class="inline" />
+        </a>
+
       </h3>
       <p class="mt-2 max-w-4xl text-sm text-gray-500">
         Or drop a file. The Input should be entered after <code>111</code>
@@ -117,8 +159,6 @@
   allow={["text/plain", "application/json"]}
   onFileDrop={(file) => {
     if (file.type === "text/plain") handleTextFile(file);
-    else {
-      alert("JSON: TODO");
-    }
+    else handleJSONFile(file);
   }}
 />
