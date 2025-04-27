@@ -41,7 +41,9 @@
     if (tm) {
       window.history.pushState(null, "", `?goedel=${tm.goedel.toString(16)}`);
     } else {
-      window.history.pushState(null, "", "");
+      const url = new URL(window.location.href);
+      url.searchParams.delete("goedel");
+      window.history.pushState(null, "", url.href);
     }
   });
 
