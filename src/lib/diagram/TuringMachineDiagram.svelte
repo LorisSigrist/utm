@@ -115,7 +115,7 @@
 </script>
 
 <div class="w-full h-full" bind:clientWidth={width} bind:clientHeight={height}>
-  <svg {width} {height} viewBox="0 0 {width} {height}" bind:this={svg}>
+  <svg {width} {height} viewBox="0 0 {width} {height}" bind:this={svg} overflow="visible">
     <defs>
       <marker
         id="arrowhead"
