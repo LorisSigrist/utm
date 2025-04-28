@@ -1,5 +1,6 @@
 import type { TuringMachineDefinition } from "../types";
 import { rotateVector } from "./vectors";
+import type * as d3 from "d3-force";
 
 const LINK_DESIRED_LENGTH = 30;
 const SELF_LINK_DESIRED_LENGTH = 50;
