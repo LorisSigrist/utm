@@ -16,7 +16,7 @@
 
 <!-- svelte-ignore state_referenced_locally -->
 <script lang="ts">
-  import * as d3 from "d3";
+  import * as d3 from "d3-force";
   import {
     getSimulationConfigForTuringMachine,
     type StateNode,
