@@ -43,10 +43,10 @@
     ) as any as TuringMachineConfiguration;
 
     for (let i = 0; i < TIMEOUT; i++) {
-      cfg = getNextConfiguration(cfg);
-      console.log(stringifyTape(cfg));
+       cfg = getNextConfiguration(cfg);
       if (cfg.finished) {
         configuration = cfg;
+        console.log(stringifyTape(configuration));
         if (tape) tape.scrollToPosition(cfg.current_position);
         return;
       }

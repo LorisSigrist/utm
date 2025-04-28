@@ -13,16 +13,23 @@
      * If the input should be a binary or decimal number
      */
     inputMode?: "binary" | "decimal";
+
+    /**
+     * Handle file upload
+     */
+    onFileUpload?: (file: File) => void;
   };
 </script>
 
 <script lang="ts">
   import { massageBinaryInput, parseGödelNumberString } from "./goedel";
   import LoadExampleDropdown from "./LoadExampleDropdown.svelte";
+  import UploadIcon from "~icons/heroicons/arrow-up-tray-solid";
 
   let {
     value = $bindable(null),
     inputMode = $bindable("binary"),
+    onFileUpload
   }: GödelNumberInputProps = $props();
 
   /**
@@ -94,6 +101,19 @@
     textValue = massagedText;
     event.preventDefault();
   }
+
+
+  function startFileUpload() {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "text/plain, application/json";
+    input.onchange = () => {
+      if (input.files == null) return;
+      const file = input.files[0];
+      if(onFileUpload) onFileUpload(file);
+    };
+    input.click();
+  }
 </script>
 
 <div>
@@ -127,8 +147,20 @@
       type="button">Decimal</button
     >
 
-    <div class="ml-auto items-center space-x-5 flex gap-4">
-      <LoadExampleDropdown />
+    <div class="ml-auto items-center space-x-5 flex">
+      <button
+        type="button"
+        class="size-6 not-first:flex items-center rounded-full text-gray-400 hover:text-gray-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100 focus:outline-hidden"
+        id="menu-button"
+        aria-expanded="true"
+        aria-haspopup="true"
+        onclick={startFileUpload}
+      >
+        <span class="sr-only">Open file</span>
+        <UploadIcon class="size-6" />
+      </button>
+
+      <LoadExampleDropdown onselect={(selected) => (value = selected)} />
     </div>
   </div>
 

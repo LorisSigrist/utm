@@ -1,11 +1,25 @@
+<script lang="ts" module>
+  export type LoadExampleDropdownProps = {
+    /**
+     * Callback to call when an example is selected
+     */
+    onselect?: (example: bigint) => void;
+  };
+</script>
+
 <script lang="ts">
   import { scale } from "svelte/transition";
   import { clickoutside } from "@svelte-put/clickoutside";
+  import BookOpenIcon from "~icons/heroicons/book-open";
+
+  let { onselect }: LoadExampleDropdownProps = $props();
 
   let open = $state(false);
 
   const Examples: Record<string, bigint> = {
-    "Contains 00": BigInt("0b10101000101001101001010010011000101000010100110001001010010011000010100001010011000010010000100100110000100010010001001111001"),
+    "Contains 00": BigInt(
+      "0b10101000101001101001010010011000101000010100110001001010010011000010100001010011000010010000100100110000100010010001001111001"
+    ),
     "Modulo 2": BigInt(
       "0b101010100010011010010001000100110100010010101100010101000100110001001000100010011000100010010010111"
     ),
@@ -15,38 +29,30 @@
     "Square Number": BigInt(
       "0b100010010000101011000100001000010000010110001010001010011000100000100010000010011000100010100010110000101000010101100001000001000010000010110000100010001010011010101001011010000010000010000010011010010000000010000100110100010010001001101000010010000100110000010010000000010000100110000001000001000000100001011000000100001000000100001011000000101000101001100000010001000100010011000000010100000001001011000000010000010000000100101100000001000010000000100101100000001001001001001100000001000100100010011000000001001000000100101100000000100010000000100010111"
     ),
-    "Infinite Loop" : BigInt("0b101000101000100111")
+    "Infinite Loop": BigInt("0b101000101000100111"),
   };
+
+  function handleClick(example: bigint) {
+    open = false;
+    if (onselect) onselect(example);
+  }
 </script>
 
 <div class="relative inline-block text-left">
-  <div>
-   
-    <button
-      type="button"
-      class="flex items-center rounded-full text-gray-400 hover:text-gray-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100 focus:outline-hidden"
-      id="menu-button"
-      aria-expanded="true"
-      aria-haspopup="true"
-      onclick={e => {open = !open; e.cancelBubble = true}}
-    >
-      <span class="sr-only">Open Examples</span>
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="1.5"
-        stroke="currentColor"
-        class="size-6"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"
-        />
-      </svg>
-    </button>
-  </div>
+  <button
+    type="button"
+    class="flex items-center rounded-full text-gray-400 hover:text-gray-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100 focus:outline-hidden"
+    id="menu-button"
+    aria-expanded="true"
+    aria-haspopup="true"
+    onclick={(e) => {
+      open = !open;
+      e.cancelBubble = true;
+    }}
+  >
+    <span class="sr-only">Open Examples</span>
+    <BookOpenIcon class="size-6" />
+  </button>
 
   {#if open}
     <div
@@ -62,18 +68,20 @@
     >
       <div class="py-1 divide-y divide-gray-100" role="none">
         <div class="px-4 py-3" role="none">
-          <p class="text-sm font-medium text-gray-900" role="none">Load Example</p>
+          <p class="text-sm font-medium text-gray-900" role="none">
+            Load Example
+          </p>
         </div>
 
         {#each Object.entries(Examples) as [name, godel]}
           <!-- Active: "bg-gray-100 text-gray-900 outline-hidden", Not Active: "text-gray-700" -->
 
-          <a
-            href="?goedel={godel.toString(16)}"
-            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 outline-hidden"
+          <button
+            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 outline-hidden"
             role="menuitem"
+            onclick={() => handleClick(godel)}
             tabindex="-1"
-            id="menu-item-0">{name}</a
+            id="menu-item-0">{name}</button
           >
         {/each}
       </div>

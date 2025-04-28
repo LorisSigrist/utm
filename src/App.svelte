@@ -54,6 +54,11 @@
     }
   });
 
+  function handleFileUpload(file: File) {
+    if (file.type === "text/plain") handleTextFile(file);
+    else handleJSONFile(file);
+  }
+
   function handleTextFile(file: File) {
     const reader = new FileReader();
     reader.onload = () => {
@@ -135,7 +140,7 @@
     </div>
 
     <section class="mb-4">
-      <GödelNumberInput bind:value={description_number} />
+      <GödelNumberInput bind:value={description_number} onFileUpload={handleFileUpload} />
     </section>
   </section>
 </div>
@@ -166,8 +171,5 @@
 
 <Dropzone
   allow={["text/plain", "application/json"]}
-  onFileDrop={(file) => {
-    if (file.type === "text/plain") handleTextFile(file);
-    else handleJSONFile(file);
-  }}
+  onFileDrop={handleFileUpload}
 />
