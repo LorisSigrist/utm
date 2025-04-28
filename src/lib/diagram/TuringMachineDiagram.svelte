@@ -7,7 +7,6 @@
      */
     tm: TuringMachineDefinition;
 
-
     /**
      * The state to highlight
      */
@@ -32,6 +31,7 @@
 
   let width = $state(800);
   let height = $state(800);
+  let svg = $state<SVGSVGElement | undefined>(undefined);
 
   const { nodes, links } = getSimulationConfigForTuringMachine(tm);
   for (const node of nodes) {
@@ -81,11 +81,11 @@
     );
     simulation.force(
       "out-x",
-      d3.forceX<Node>(rightEdge).strength((d) => (d.x >rightEdge? 0.5 : 0))
+      d3.forceX<Node>(rightEdge).strength((d) => (d.x > rightEdge ? 0.5 : 0))
     );
     simulation.force(
       "out-y",
-      d3.forceY<Node>(bottomEdge).strength((d) => (d.y >bottomEdge ? 0.5 : 0))
+      d3.forceY<Node>(bottomEdge).strength((d) => (d.y > bottomEdge ? 0.5 : 0))
     );
 
     simulation.force(
@@ -110,13 +110,12 @@
         )
     );
 
-
     simulation.alpha(0.5);
   });
 </script>
 
 <div class="w-full h-full" bind:clientWidth={width} bind:clientHeight={height}>
-  <svg {width} {height} viewBox="0 0 {width} {height}">
+  <svg {width} {height} viewBox="0 0 {width} {height}" bind:this={svg}>
     <defs>
       <marker
         id="arrowhead"
@@ -132,7 +131,12 @@
     </defs>
     {#each nodes as node}
       {#if node.data.type == "state"}
-        <State highlighted={!!highlighted_state && node.data.id == "q"+highlighted_state} state={node as StateNode} />
+        <State
+          highlighted={!!highlighted_state &&
+            node.data.id == "q" + highlighted_state}
+          state={node as StateNode}
+          {svg}
+        />
       {/if}
 
       {#if node.data.type == "self-transition"}
