@@ -111,7 +111,7 @@
   }
 </script>
 
-<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-16 pb-6 md:pb-12">
+<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8 md:pt-16">
   <section class="mx-auto max-w-3xl">
     <h1 class="text-2xl md:text-4xl font-bold mb-6 md:mb-10">
       Universal Turing Machine Simulator
@@ -141,10 +141,10 @@
 </div>
 
 {#if configuration}
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
+  <div class="w-full mb-8">
     {#key configuration.tm.goedel_without_input}
       <section
-        class="w-full mx-auto max-w-6xl h-140"
+        class="w-full h-140"
         in:fly|global={{ duration: 1500, opacity: 0, y: 200, delay: 200 }}
       >
         <TuringMachineDiagram
