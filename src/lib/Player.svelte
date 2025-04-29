@@ -2,7 +2,11 @@
   import { onMount } from "svelte";
   import Tape from "./Tape.svelte";
   import type { TuringMachineConfiguration } from "./types";
-  import { getInitialConfiguration, getNextConfiguration, stringifyTape } from "./utm";
+  import {
+    getInitialConfiguration,
+    getNextConfiguration,
+    stringifyTape,
+  } from "./utm";
 
   import PlayIcon from "~icons/heroicons/play-16-solid";
   import PauseIcon from "~icons/heroicons/pause-16-solid";
@@ -36,29 +40,38 @@
     if (!configuration || configuration.finished) return;
     stop(); // stop animation
 
-    const TIMEOUT = 5_000_000;
+    let timeout = 5_000_000;
 
     let cfg = structuredClone(
       $state.snapshot(configuration)
     ) as any as TuringMachineConfiguration;
 
-    for (let i = 0; i < TIMEOUT; i++) {
-       cfg = getNextConfiguration(cfg);
-      if (cfg.finished) {
-        configuration = cfg;
-        console.log(stringifyTape(configuration));
-        if (tape) tape.scrollToPosition(cfg.current_position);
-        return;
+    const numberFormat = new Intl.NumberFormat("en-US", {
+      notation: "standard",
+    });
+
+    let shouldContinue = true;
+    while (shouldContinue) {
+      for (let i = 0; i < timeout; i++) {
+        cfg = getNextConfiguration(cfg);
+        if (cfg.finished) {
+          configuration = cfg;
+          console.log(stringifyTape(configuration));
+          if (tape) tape.scrollToPosition(cfg.current_position);
+          return;
+        }
       }
+
+      configuration = cfg;
+
+      const newTimeout = timeout * 2;
+      shouldContinue = confirm(
+        `Paused Execution after ${numberFormat.format(timeout)} steps. Continue for ${numberFormat.format(newTimeout)} steps?`
+      );
+
+      timeout = newTimeout;
     }
 
-    configuration = cfg;
-
-    const formattedTimout = new Intl.NumberFormat("en-US", {
-      notation: "standard",
-    }).format(TIMEOUT);
-
-    alert(`Paused Execution after ${formattedTimout} steps`);
     if (tape) tape.scrollToPosition(configuration.current_position);
   }
 
@@ -123,7 +136,7 @@
 
     // on space & no input is focused -> play/pause
     if (e.key === " ") {
-      if(document.activeElement instanceof HTMLButtonElement) return; // avoid conflicts
+      if (document.activeElement instanceof HTMLButtonElement) return; // avoid conflicts
       playing ? stop() : play();
       e.preventDefault();
     }
