@@ -25,6 +25,8 @@
   import { massageBinaryInput, parseGödelNumberString } from "./goedel";
   import LoadExampleDropdown from "./LoadExampleDropdown.svelte";
   import UploadIcon from "~icons/heroicons/arrow-up-tray-solid";
+  import DownloadIcon from "~icons/heroicons/arrow-down-tray-solid";
+  import { goedelToFlaci } from "./flaci";
 
   let {
     value = $bindable(null),
@@ -114,6 +116,22 @@
     };
     input.click();
   }
+
+  function downloadGoedelAsFlaciFile() {
+    if(!value) {alert("Enter a valid value to download"); return}
+    const flaci = goedelToFlaci(value);
+
+    const json = JSON.stringify(flaci);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "flaci.json";
+    link.click();
+
+    URL.revokeObjectURL(url);
+    link.remove();
+  }
 </script>
 
 <div>
@@ -159,6 +177,19 @@
         <span class="sr-only">Open file</span>
         <UploadIcon class="size-6" />
       </button>
+
+      <button
+      type="button"
+      class="size-6 not-first:flex items-center rounded-full text-gray-400 hover:text-gray-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100 focus:outline-hidden"
+      id="menu-button"
+      aria-expanded="true"
+      aria-haspopup="true"
+      disabled={!value}
+      onclick={downloadGoedelAsFlaciFile}
+    >
+      <span class="sr-only">Open file</span>
+      <DownloadIcon class="size-6" />
+    </button>
 
       <LoadExampleDropdown onselect={(selected) => (value = selected)} />
     </div>

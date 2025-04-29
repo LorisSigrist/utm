@@ -1,4 +1,6 @@
 import * as z from "@zod/mini";
+import { getInitialConfiguration } from "./utm";
+import { parseGödelNumberString } from "./goedel";
 
 const Label = z.tuple([z.string(), z.string(), z.enum(["L", "R", "N"])])
 
@@ -24,7 +26,10 @@ const State = z.object({
 const Automaton = z.object({
     Alphabet: z.array(z.string()),
     StackAlphabet: z.array(z.string()).check(z.minLength(1)),
-    States: z.array(State)
+	States: z.array(State),
+	acceptCache: z.array(z.number()),
+	simulationInput: z.array(z.string().check(z.minLength(1))),
+	lastInputs: z.array(z.array(z.string()))
 });
 
 const Flaci = z.object({
@@ -35,6 +40,8 @@ const Flaci = z.object({
 });
 
 type Flaci = z.infer<typeof Flaci>;
+type FlaciState = z.infer<typeof State>;
+type FlaciTransition = z.infer<typeof Transition>;
 
 export function isValidFlaciTM(thing: unknown) : thing is Flaci {
     return Flaci.safeParse(thing).success;
@@ -226,4 +233,73 @@ function modifySoThatThereIsOnlyOneAcceptingState(flaci: Flaci): Flaci {
 	modified.automaton.States.push(acceptingState);
 
 	return modified;
+}
+
+
+export function goedelToFlaci(description: bigint): Flaci { 
+	const definition = parseGödelNumberString(description.toString(2), 2);
+	if(!definition.success) throw new Error('Invalid Gödel number');
+	const utm = definition.result;
+
+
+	const emptySymbol = utm.alphabet[utm.empty_symbol -1 ];
+	const stackAlphabet = [emptySymbol, ...utm.alphabet.filter(s => s !== emptySymbol)];
+
+	const states: FlaciState[] = [];
+
+	for (const state of utm.states) {
+		const x = state * 100;
+		const y = 100;
+
+		const name = `q${state}`;
+		const transitionsFromState = utm.transitions.filter(t => t[0] === state);
+		const transitions: FlaciTransition[] = [];
+
+
+		// TODO: Group Transitions by Start+End State Pair
+		for (const transition of transitionsFromState) {
+			const fromSymbol = utm.alphabet[transition[1] - 1];
+			const toSymbol = utm.alphabet[transition[3] - 1];
+			const direction = {
+				L: 'L',
+				R: 'R',
+			}[transition[4]] as "L" | "R";
+
+			transitions.push({
+				Source: state,
+				Target: transition[2],
+				x: x,
+				y: y,
+				Labels: [[fromSymbol, toSymbol, direction]]
+			});
+		}
+
+
+		states.push({
+			ID: state,
+			Name: name,
+			x: x,
+			y: y,
+			Start: state === utm.starting_state,
+			Final: state === utm.accepting_state,
+			Radius: 30,
+			Transitions: transitions
+		});
+	}
+
+	const flaci: Flaci = {
+		type: "TM",
+		name: "UTM.sigrist.dev Export",
+		description: "Exported from https://utm.sigrist.dev?goedel=" + description.toString(16),
+		automaton: {
+			Alphabet: ["0", "1"],
+			StackAlphabet:  stackAlphabet,
+			States: states,
+			acceptCache: [],
+			lastInputs: [],
+			simulationInput: utm.initial_tape.map((s) => utm.alphabet[s - 1]),
+		}
+	};
+
+	return flaci;
 }
