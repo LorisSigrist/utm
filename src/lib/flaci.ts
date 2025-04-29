@@ -42,6 +42,7 @@ const Flaci = z.object({
 type Flaci = z.infer<typeof Flaci>;
 type FlaciState = z.infer<typeof State>;
 type FlaciTransition = z.infer<typeof Transition>;
+type FlaciLabel = z.infer<typeof Label>;
 
 export function isValidFlaciTM(thing: unknown) : thing is Flaci {
     return Flaci.safeParse(thing).success;
@@ -256,22 +257,31 @@ export function goedelToFlaci(description: bigint): Flaci {
 		const transitions: FlaciTransition[] = [];
 
 
-		// TODO: Group Transitions by Start+End State Pair
-		for (const transition of transitionsFromState) {
-			const fromSymbol = utm.alphabet[transition[1] - 1];
-			const toSymbol = utm.alphabet[transition[3] - 1];
-			const direction = {
-				L: 'L',
-				R: 'R',
-			}[transition[4]] as "L" | "R";
+		const transitionsByPair = Object.groupBy(transitionsFromState, t => `q${t[0]}-q${t[2]}`);
+
+		for (const transitionsForPair of Object.values(transitionsByPair)) { 
+			if (!transitionsForPair) continue;
+
+			const label: FlaciLabel[] = [];
+
+			for (const transition of transitionsForPair) { 
+				const fromSymbol = utm.alphabet[transition[1] - 1];
+				const toSymbol = utm.alphabet[transition[3] - 1];
+				const direction = {
+					L: 'L',
+					R: 'R',
+				}[transition[4]] as "L" | "R";
+
+				label.push([fromSymbol, toSymbol, direction]);
+			}	
 
 			transitions.push({
 				Source: state,
-				Target: transition[2],
+				Target: transitionsForPair[0][2],
 				x: x,
 				y: y,
-				Labels: [[fromSymbol, toSymbol, direction]]
-			});
+				Labels: label
+			})
 		}
 
 
